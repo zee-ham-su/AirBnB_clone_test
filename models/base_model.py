@@ -2,8 +2,11 @@
 """
 BaseModel class definfition
 """
+
 from datetime import datetime
 from uuid import uuid4
+from models import storage
+import models
 
 
 class BaseModel:
@@ -31,13 +34,15 @@ class BaseModel:
                         self.__dict__[k] = datetime.strptime(v,'%Y-%m-%dT%H:%M:%S.%f')
                     else:
                         self.__dict__[k] = v
-
+        else:
+            models.storage.new(self)
     def save(self):
         """
          Updates the 'updated_at' attribute with the current
          timestamp.
         """
         self.updated_at = datetime.now()
+        storage.save()
 
     def to_dict(self):
         """
