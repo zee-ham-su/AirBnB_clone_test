@@ -1,12 +1,10 @@
 #!/usr/bin/python3
 """
-BaseModel class definfition
+BaseModel class definition
 """
-
 from datetime import datetime
-from uuid import uuid4
-from models import storage
 import models
+from uuid import uuid4
 
 
 class BaseModel:
@@ -31,25 +29,28 @@ class BaseModel:
             for k, v in kwargs.items():
                 if k != '__class__':
                     if k in ['created_at', 'updated_at']:
-                        self.__dict__[k] = datetime.strptime(v,'%Y-%m-%dT%H:%M:%S.%f')
+                        self.__dict__[k] = datetime.strptime(
+                            v, '%Y-%m-%dT%H:%M:%S.%f')
                     else:
                         self.__dict__[k] = v
         else:
             models.storage.new(self)
+
     def save(self):
         """
          Updates the 'updated_at' attribute with the current
          timestamp.
         """
         self.updated_at = datetime.now()
-        storage.save()
+        models.storage.save()
 
     def to_dict(self):
         """
         Converts the instance attributes to a dictionary.
 
         Returns:
-            dict: A dictionary containing class name, attributes,
+            dict: A dictionary containing class name,
+        attributes,
         and timestamps.
         """
         cstm_dict = self.__dict__.copy()
