@@ -6,6 +6,12 @@ JSON file and deserializes JSON file to instances
 from models.base_model import BaseModel
 import json
 import os
+from models.user import User
+from models.amenity import Amenity
+from models.review import Review
+from models.place import Place
+from models.state import State
+from models.city import City
 
 
 class FileStorage:
@@ -14,6 +20,15 @@ class FileStorage:
 
     __file_path = "file.json"
     __objects = {}
+    classes = {
+        'BaseModel': BaseModel,
+        'User': User,
+        'Amenity': Amenity,
+        'Review': Review,
+        'Place': Place,
+        'State': State,
+        'City': City
+    }
 
     def all(self):
         """Returns the dictionary __objects"""
@@ -46,3 +61,4 @@ class FileStorage:
                 cls = globals()[cls_name]
                 instance = cls(**value)
                 self.new(instance)
+                FileStorage.classes[cls_name] = cls
