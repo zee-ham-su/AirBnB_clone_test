@@ -4,6 +4,8 @@ a program called console.py that contains the entry point of
 the command interpreter
 """
 import cmd
+import re
+import json
 from models import storage
 from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
@@ -28,6 +30,28 @@ class HBNBCommand(cmd.Cmd):
         "Amenity",
         "Review"
     }
+
+    def default(self, user_input):
+        """Catch commands if nothing else matches then."""
+        match = re.search(r"^(\w*)\.(\w+)(?:\(([^)]*)\))$", user_input)
+        if match:
+            class_name = match.group(1)
+            method = match.group(2)
+            args = match.group(3)
+
+            if class_name in self.__classes:
+                if method == "count":
+                    self.do_count(f"{class_name} {args}")
+                elif method == "all":
+                    self.do_all(class_name)
+                else:
+                    print("Method '{}' not recognized for class '{}'"
+.format(method, class_name))
+            else:
+                print("** class doesn't exist **")
+        else:
+            print("Invalid command")
+
 
     def do_quit(self, user_input):
         """Quit command to exit the program"""
@@ -146,6 +170,28 @@ class HBNBCommand(cmd.Cmd):
         instance = all_instances[instance_key]
         setattr(instance, attribute_name, attribute_value)
         instance.save()
+
+    def do_count(self, user_input):
+        """Counts the instances of a class."""
+        args = user_input.split()
+        if not args:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+        if class_name not in self.__classes:
+            print("** class doesn't exist **")
+            return
+
+        instances_count = sum(1 for instance in storage.all().values() if isinstance(instance, self.__classes[class_name]))
+        print(instances_count)
+
+    def update_dict(self, instance, attribute_dict):
+        """Helper method for updating attributes using a dictionary."""
+        attribute_dict = attribute_dict.replace("'", '"')
+        attr_dict = json.loads(attribute_dict)
+        for key, value in attr_dict.items():
+            setattr(instance, key, value)
 
 
 if __name__ == '__main__':
