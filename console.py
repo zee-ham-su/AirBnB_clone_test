@@ -20,15 +20,20 @@ from models.city import City
 class HBNBCommand(cmd.Cmd):
     """ defines the command interpreter
     """
-    prompt = '(hbnb) '
+    def __init__(self):
+        """Initialize the command interpreter and instantiate
+        FileStorage."""
+        super().__init__()
+        self.prompt = '(hbnb) '
+        self.storage = FileStorage()
     __classes = {
-        "BaseModel",
-        "User",
-        "State",
-        "City",
-        "Place",
-        "Amenity",
-        "Review"
+        "BaseModel": BaseModel,
+        "User": User,
+        "State": State,
+        "City": City,
+        "Place": Place,
+        "Amenity": Amenity,
+        "Review": Review
     }
 
     def default(self, user_input):
@@ -44,14 +49,14 @@ class HBNBCommand(cmd.Cmd):
                     self.do_count(f"{class_name} {args}")
                 elif method == "all":
                     self.do_all(class_name)
+                elif method == "show":
+                    self.do_show(f"{class_name} {args}")
                 else:
-                    print("Method '{}' not recognized for class '{}'"
-.format(method, class_name))
+                    print("Method '{}' not recognized for class '{}'".format(method, class_name))
             else:
                 print("** class doesn't exist **")
         else:
             print("Invalid command")
-
 
     def do_quit(self, user_input):
         """Quit command to exit the program"""
@@ -97,13 +102,13 @@ class HBNBCommand(cmd.Cmd):
             print("** instance id missing **")
             return
         instance_id = args[1]
-        all_instances = storage.all()
         instance_key = f"{class_name}.{instance_id}"
+        all_instances = self.storage.all()
         if instance_key not in all_instances:
             print("** no instance found **")
-            return
-        print(all_instances[instance_key])
-
+        else:
+            print(all_instances[instance_key])
+            
     def do_destroy(self, user_input):
         """Delete an instance based on the class name and id"""
         if not user_input:
@@ -179,12 +184,12 @@ class HBNBCommand(cmd.Cmd):
             return
 
         class_name = args[0]
-        if class_name not in self.__classes:
+        if class_name in self.__classes:
+            class_object = self.__classes[class_name]
+            instances_count = sum(1 for instance in storage.all().values() if isinstance(instance, class_object))
+            print(instances_count)
+        else:
             print("** class doesn't exist **")
-            return
-
-        instances_count = sum(1 for instance in storage.all().values() if isinstance(instance, self.__classes[class_name]))
-        print(instances_count)
 
     def update_dict(self, instance, attribute_dict):
         """Helper method for updating attributes using a dictionary."""

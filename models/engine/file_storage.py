@@ -58,7 +58,7 @@ class FileStorage:
                 obj_dict = json.load(file)
             for key, value in obj_dict.items():
                 cls_name = value['__class__']
-                cls = globals()[cls_name]
-                instance = cls(**value)
-                self.new(instance)
-                FileStorage.classes[cls_name] = cls
+                cls = FileStorage.classes.get(cls_name)
+                if cls:
+                    instance = cls(**value)
+                    self.new(instance)
