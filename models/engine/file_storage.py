@@ -30,6 +30,11 @@ class FileStorage:
         'City': City
     }
 
+    def get_instance_by_id(self, cls_name, instance_id):
+        """Retrieves an instance by class name and ID"""
+        key = f"{cls_name}.{instance_id}"
+        return FileStorage.__objects.get(key)
+
     def all(self):
         """Returns the dictionary __objects"""
         return FileStorage.__objects
